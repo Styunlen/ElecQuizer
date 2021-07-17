@@ -12,23 +12,27 @@ bool isInited = false;
   Global Functions
 ********************/
 bool St_Socket_Init() {
-
-	WSADATA wsaData;
-	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);//ÓÃÓÚ¼ì²âº¯Êı×´Ì¬
-	if (iResult != 0) {
-		return false;
+	if(isInited == false)
+	{
+		WSADATA wsaData;
+		int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);//ç”¨äºæ£€æµ‹å‡½æ•°çŠ¶æ€
+		if (iResult != 0) {
+			return false;
+		}
+		isInited = true;
 	}
-	isInited = true;
 	return true;
 }
 
 bool St_Socket_CleanUp() {
-
-	int iResult = WSACleanup();
-	if (iResult != 0) {
-		return false;
+	if(isInited == true)
+	{
+		int iResult = WSACleanup();
+		if (iResult != 0) {
+			return false;
+		}
+		isInited = false;
 	}
-	isInited = false;
 	return true;
 }
 
@@ -44,10 +48,10 @@ int St_Socket::connectWithHostName(string hostname,string port)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 	int iResult;
-	//Ì×½Ó×ÖÁ¬½ÓĞÅÏ¢
+	//å¥—æ¥å­—è¿æ¥ä¿¡æ¯
 	iResult = getaddrinfo(hostname.c_str(), port.c_str(), &hints, &result);
 	if (iResult != 0) {
-		string logstr = "ÓòÃû½âÎöÊ§°Ü : ";
+		string logstr = "åŸŸåè§£æå¤±è´¥ : ";
 		logstr += iResult;
 		logstr += " \n";
 		//pwin->call_function("DebugLog", logstr);
@@ -58,7 +62,7 @@ int St_Socket::connectWithHostName(string hostname,string port)
 
 	m_sock = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (m_sock == INVALID_SOCKET) {
-		string logstr = "´´½¨Ì×½Ó×ÖÊ§°Ü : ";
+		string logstr = "åˆ›å»ºå¥—æ¥å­—å¤±è´¥ : ";
 		logstr += St_GetErrorInfo(WSAGetLastError());
 		logstr += " \n";
 		//pwin->call_function("DebugLog", logstr);
@@ -69,7 +73,7 @@ int St_Socket::connectWithHostName(string hostname,string port)
 
 	iResult = connect(m_sock, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
-		string logstr = "Á¬½ÓÊ§°Ü : ";
+		string logstr = "è¿æ¥å¤±è´¥ : ";
 		logstr += St_GetErrorInfo(WSAGetLastError());
 		logstr += " \n";
 		//pwin->call_function("DebugLog", logstr);
@@ -93,7 +97,7 @@ int St_Socket::sendMsg(void* msg,int msglen)
 		return -1;
 	int iResult = ::send(m_sock, (char*)msg, msglen, 0);
 	if (iResult == SOCKET_ERROR) {
-		string logstr = "·¢ËÍÊ§°Ü! ";
+		string logstr = "å‘é€å¤±è´¥! ";
 		logstr += St_GetErrorInfo(WSAGetLastError());
 		logstr += " \n";
 		closesocket(m_sock);
@@ -102,7 +106,7 @@ int St_Socket::sendMsg(void* msg,int msglen)
 	}
 	else
 	{
-		string logstr = "·¢ËÍ³É¹¦! ";
+		string logstr = "å‘é€æˆåŠŸ! ";
 		logstr += iResult;
 		logstr += " \n";
 	}
